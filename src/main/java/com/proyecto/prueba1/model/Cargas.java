@@ -9,48 +9,69 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.validation.constraints.*;
 import lombok.Data;
+import jakarta.persistence.FetchType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty; 
+
+
 
 /**
- * Entidad que representa una carga en el sistema de transporte.
- * Contiene información esencial sobre la carga y su estado.
+ * Entidad que representa una carga en el sistema de transporte Carga Extra.
+ * Contiene información sobre la descripción, peso, dimensiones,
+ * puntos de origen y destino, valor a pagar, estado y relación con el usuario que la publica.
  */
 @Entity
 @Data
+@Table(name = "cargas")
 public class Cargas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "id_carga")
     private Long idCarga;
 
-    @Column
+    @NotBlank(message = "La descripción no puede estar vacía")
+    @Size(max = 255, message = "La descripción no puede superar los 255 caracteres")
+    @Column(nullable = false, length = 255)
     private String descripcion;
 
-    @Column
+    @NotNull(message = "El peso no puede ser nulo")
+    @Positive(message = "El peso debe ser mayor que 0")
+    @Column(nullable = false)
     private Double pesoKg;
 
-    @Column
+    @NotBlank(message = "Las dimensiones no pueden estar vacías")
+    @Pattern(
+        regexp = "^[0-9]+(\\.[0-9]+)?\\*[0-9]+(\\.[0-9]+)?\\*[0-9]+(\\.[0-9]+)?$",
+        message = "Las dimensiones deben tener el formato L*W*H (ejemplo: 1.5*0.5*1.0)"
+    )
+    @Column(nullable = false, length = 50)
     private String dimensiones;
 
-    @Column
+    @NotBlank(message = "El punto de origen no puede estar vacío")
+    @Size(max = 100, message = "El punto de origen no puede superar los 100 caracteres")
+    @Column(nullable = false, length = 100)
     private String puntoOrigen;
 
-    @Column
+    @NotBlank(message = "El punto de destino no puede estar vacío")
+    @Size(max = 100, message = "El punto de destino no puede superar los 100 caracteres")
+    @Column(nullable = false, length = 100)
     private String puntoDestino;
 
-    @Column
+    @NotNull(message = "El valor a pagar no puede ser nulo")
+    @Positive(message = "El valor a pagar debe ser mayor que 0")
+    @Column(nullable = false)
     private Double valorAPagar;
 
     @Enumerated(EnumType.STRING)
-    @Column
-    private EstadoCarga estado;
+    @Column(nullable = false, length = 20)
+    private EstadoCarga estado; // valor por defecto
 
     // Relación con el usuario que publica la carga
-    @ManyToOne
-    @JoinColumn(name = "id_usuario_publicador")
-    @JsonProperty("idUsuarioPublicador") 
-    private Usuarios usuarioPublicador; // El usuario que ha publicado esta carga
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonProperty("idUsuarioPublicador")
+    private Usuarios usuarioPublicador; 
 }

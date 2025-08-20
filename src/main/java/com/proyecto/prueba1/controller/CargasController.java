@@ -2,6 +2,7 @@ package com.proyecto.prueba1.controller;
 
 import com.proyecto.prueba1.model.Cargas;
 import com.proyecto.prueba1.services.CargasService; 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus; 
 import org.springframework.http.ResponseEntity; 
@@ -36,7 +37,7 @@ public class CargasController {
      * @return ResponseEntity con la carga creada y estado HTTP 201 (Created), o un error.
      */
     @PostMapping("/publicar") // Mapea a POST /cargas/publicar
-    public ResponseEntity<Cargas> publicarCarga(@RequestBody Cargas nuevaCarga) {
+    public ResponseEntity<Cargas> publicarCarga(@Valid @RequestBody Cargas nuevaCarga) {
         Cargas cargaGuardada = cargasService.publicarNuevaCarga(nuevaCarga);
         if (cargaGuardada != null) {
             return new ResponseEntity<>(cargaGuardada, HttpStatus.CREATED); 
